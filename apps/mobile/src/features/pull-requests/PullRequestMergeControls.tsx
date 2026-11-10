@@ -137,7 +137,9 @@ export function PullRequestMergeControls(props: {
               ? { label: gt("Resolve conflicts to merge"), icon: PullRequestGlyph.conflicting }
               : pr.autoMergeEnabled
                 ? {
-                    label: pr.autoMergeMethod
+                    label: pr.mergeQueue
+                      ? gt("Queued (#{position})", { position: pr.mergeQueue.position })
+                      : pr.autoMergeMethod
                       ? gt(
                           "Auto-merge pending ({kind, select, squash {squash} merge {merge} rebase {rebase} fastForward {fast-forward} other {{method}}})",
                           {
@@ -257,7 +259,7 @@ export function PullRequestMergeControls(props: {
             )
         : action === "enable-auto-merge"
           ? gt("Enable auto-merge?")
-          : gt("Disable auto-merge?");
+          : pr.mergeQueue ? gt("Remove from queue?") : gt("Disable auto-merge?");
     const message =
       action === "merge" && scope
         ? gt(
@@ -359,7 +361,9 @@ export function PullRequestMergeControls(props: {
                   ? [
                       {
                         id: autoAction,
-                        title: pr.autoMergeEnabled
+                        title: pr.mergeQueue
+                          ? gt("Remove from queue")
+                          : pr.autoMergeEnabled
                           ? gt("Disable auto-merge")
                           : gt("Enable auto-merge"),
                         image: "clock",

@@ -99,6 +99,7 @@ function setup() {
       onActingEnvironmentChange={() => {}}
       can={() => false}
       autoMergeArmed={false}
+      mergeQueued={false}
       showsDraftToggle={false}
       showsMergeNow={false}
       showsAutoMerge={false}

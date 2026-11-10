@@ -146,6 +146,7 @@ import {
   pullRequestFindingKey,
   pullRequestHandoffLabels,
   PULL_REQUEST_MERGE_METHOD_LABELS,
+  MERGE_QUEUE_STATE_LABELS,
   checkoutFailureDescription,
   mergeHeadPin,
   seenPullRequestHead,
@@ -1412,7 +1413,10 @@ export function PullRequestDetailPanel({
   const conflicting = isPullRequestConflicting(detail);
   const autoMergeArmed = detail?.state === "open" && detail.autoMergeEnabled === true;
   const armedMergeMethod = detail?.autoMergeMethod;
-  const armedAutoMergeLabel = armedMergeMethod
+  const mergeQueue = autoMergeArmed ? detail.mergeQueue : undefined;
+  const armedAutoMergeLabel = mergeQueue
+    ? `Queued (#${mergeQueue.position}, ${MERGE_QUEUE_STATE_LABELS[mergeQueue.state]})`
+    : armedMergeMethod
     ? resolve(AUTO_MERGE_LABELS[armedMergeMethod])
     : gt("Auto-merge");
   const workflowApprovalsRequired =
@@ -1696,6 +1700,7 @@ export function PullRequestDetailPanel({
                 onActingEnvironmentChange={selectActingEnvironment}
                 can={can}
                 autoMergeArmed={autoMergeArmed}
+                mergeQueued={mergeQueue !== undefined}
                 showsDraftToggle={showsDraftToggle}
                 showsMergeNow={showsMergeNow}
                 showsAutoMerge={showsAutoMerge}
