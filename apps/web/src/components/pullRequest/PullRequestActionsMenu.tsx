@@ -393,7 +393,7 @@ export function PullRequestActionsMenu({
                 aria-label={
                   inlineConfirm.isArmed("enable-auto-merge")
                     ? gt("Confirm auto-merge?")
-                    : gt("Enable auto-merge")
+                    : gt("Merge when ready")
                 }
                 disabled={actionPending}
                 {...inlineConfirm.props(
@@ -404,7 +404,7 @@ export function PullRequestActionsMenu({
                 <PullRequestGlyph.merged className="size-3.5" />
                 {inlineConfirm.isArmed("enable-auto-merge")
                   ? gt("Confirm auto-merge?")
-                  : gt("Enable auto-merge")}
+                  : gt("Merge when ready")}
               </MenuItem>
             ) : null}
             {showsMergeMethods ? (

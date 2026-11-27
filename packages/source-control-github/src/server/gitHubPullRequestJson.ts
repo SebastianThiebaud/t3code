@@ -387,6 +387,7 @@ export interface GitHubPullRequestDetail extends GitHubPullRequestListItem {
   readonly checks: ReadonlyArray<PullRequestCheck>;
   readonly autoMergeEnabled?: boolean;
   readonly autoMergeMethod?: PullRequestMergeMethod;
+  readonly mergeQueueEnabled?: boolean;
   readonly mergeQueue?: PullRequestMergeQueueEntry;
 }
 
@@ -513,7 +514,7 @@ function toMergeMethod(value: string | null | undefined): PullRequestMergeMethod
   }
 }
 
-const MERGE_QUEUE_STATES = {
+export const MERGE_QUEUE_STATES = {
   QUEUED: "queued",
   AWAITING_CHECKS: "awaiting-checks",
   MERGEABLE: "mergeable",
@@ -841,6 +842,7 @@ interface DetailFields extends ListItemFields {
     | { readonly mergeMethod?: string | null | undefined }
     | null
     | undefined;
+  readonly isMergeQueueEnabled?: boolean | null | undefined;
   readonly isInMergeQueue?: boolean | undefined;
   readonly mergeQueueEntry?: MergeQueueEntryFields | null | undefined;
 }
@@ -867,6 +869,7 @@ function toDetail(raw: DetailFields): GitHubPullRequestDetail {
       ? {}
       : { autoMergeEnabled: raw.autoMergeRequest !== null || raw.isInMergeQueue === true }),
     ...(autoMergeMethod === undefined ? {} : { autoMergeMethod }),
+    ...(raw.isMergeQueueEnabled === true ? { mergeQueueEnabled: true } : {}),
     ...(mergeQueue === undefined ? {} : { mergeQueue }),
   };
 }
@@ -1314,7 +1317,9 @@ export function toPullRequestCommitStats(result: PullRequestCommitStats.Result) 
 /** A check context as the rollup reports it; opaque outside this module. */
 export type GitHubCheckContext = CheckFields;
 
-function toCheckContexts(nodes: ReadonlyArray<CheckContext>): ReadonlyArray<GitHubCheckContext> {
+export function toCheckContexts(
+  nodes: ReadonlyArray<CheckContext>,
+): ReadonlyArray<GitHubCheckContext> {
   return nodes.map((check) =>
     check.__typename === "CheckRun"
       ? {

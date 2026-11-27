@@ -414,6 +414,7 @@ describe("pull request detail decoding", () => {
             headRef: null,
             author: null,
             autoMergeRequest: null,
+            isMergeQueueEnabled: false,
             isInMergeQueue: false,
             mergeQueueEntry: null,
             viewerCanUpdate: true,

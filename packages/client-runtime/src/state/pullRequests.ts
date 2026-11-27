@@ -1283,6 +1283,11 @@ export function createPullRequestEnvironmentAtoms<R, E>(
       refreshTrigger: ({ environmentId }) => refreshes({ environmentId, input: {} }),
       ...(onAnswer.listStats === undefined ? {} : { onAnswer: onAnswer.listStats }),
     }),
+    mergeQueues: createEnvironmentRpcQueryAtomFamily(runtime, {
+      label: "environment-data:pull-requests:merge-queues",
+      tag: WS_METHODS.pullRequestsMergeQueues,
+      staleTimeMs: 60_000,
+    }),
     filterOptions: createEnvironmentRpcQueryAtomFamily(runtime, {
       label: "environment-data:pull-requests:filter-options",
       tag: WS_METHODS.pullRequestsFilterOptions,

@@ -966,6 +966,16 @@ export function PullRequestDetailPanel({
     updateMethod?: PullRequestUpdateMethod,
   ) => {
     if (!canWriteSourceControl || pendingAction !== null) return false;
+    if (action === "disable-auto-merge" && detail?.mergeQueueEnabled) {
+      const confirmed = await readLocalApi()?.dialogs.confirm(
+        gt("Remove {repository} #{number} from the merge queue?", {
+          repository: reference.repository,
+          number: reference.number,
+        }),
+        { variant: "destructive" },
+      );
+      if (!confirmed) return false;
+    }
     setPendingAction(action);
     return finishAction(action, method, updateMethod);
   };
@@ -1408,8 +1418,10 @@ export function PullRequestDetailPanel({
     projectDefaultMergeMethod,
     lastSelectedMergeMethod,
   );
-  const selectedMergeMethodLabel = resolve(PULL_REQUEST_MERGE_METHOD_LABELS[selectedMergeMethod]);
-  const pendingAutoMergeLabel = resolve(AUTO_MERGE_LABELS[selectedMergeMethod]);
+  const selectedMergeMethodLabel = detail?.mergeQueueEnabled
+    ? gt("Merge when ready")
+    : resolve(PULL_REQUEST_MERGE_METHOD_LABELS[selectedMergeMethod]);
+  const pendingAutoMergeLabel = gt("Merge when ready");
   const conflicting = isPullRequestConflicting(detail);
   const autoMergeArmed = detail?.state === "open" && detail.autoMergeEnabled === true;
   const armedMergeMethod = detail?.autoMergeMethod;
@@ -1660,6 +1672,8 @@ export function PullRequestDetailPanel({
                 />
               ) : null}
               <PullRequestPrimaryAction
+                mergeQueueEnabled={detail.mergeQueueEnabled === true}
+                canRemoveFromQueue={can("disable-auto-merge")}
                 mergeBlockedReason={mergeBlockedReason}
                 pullRequestKey={pullRequestKey}
                 primaryAction={primaryAction}

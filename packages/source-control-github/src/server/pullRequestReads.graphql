@@ -137,6 +137,7 @@ query PullRequestCore(
           }
         }
       }
+      isMergeQueueEnabled
       isInMergeQueue
       mergeQueueEntry {
         state
@@ -682,6 +683,50 @@ query PullRequestSourceBranch($repositoryId: ID!, $ref: String!) {
       ref(qualifiedName: $ref) {
         target {
           oid
+        }
+      }
+    }
+  }
+}
+
+query BranchMergeQueue($owner: String!, $name: String!, $branch: String!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    mergeQueue(branch: $branch) {
+      entries(first: 100, after: $cursor) {
+        nodes {
+          position
+          state
+          enqueuedAt
+          estimatedTimeToMerge
+          headCommit {
+            id
+          }
+          pullRequest {
+            number
+            title
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+query MergeGroupChecks($id: ID!, $number: Int!, $required: Boolean!, $after: String) {
+  node(id: $id) {
+    ... on Commit {
+      statusCheckRollup {
+        contexts(first: 100, after: $after) {
+          nodes {
+            ...CheckContext
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }
     }

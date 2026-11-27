@@ -86,6 +86,7 @@ const coreResponse = (pullRequest: Readonly<Record<string, unknown>> = {}) => ({
         headRef: null,
         author: null,
         autoMergeRequest: null,
+        isMergeQueueEnabled: false,
         isInMergeQueue: false,
         mergeQueueEntry: null,
         headRefName: "feature",
@@ -748,6 +749,100 @@ it.effect(
 );
 
 layer("GitHubPullRequestApi.layer", (it) => {
+  it.effect("lists empty and active protected-branch queues and follows entry cursors", () =>
+    Effect.gen(function* () {
+      mockedExecute.mockImplementation((call) => {
+        if (call.kind === "rest") {
+          expect(call.path).toBe("repos/acme/web/branches?protected=true&per_page=100&page=1");
+          return Effect.succeed(
+            output(encodeJson([{ name: "main" }, { name: "release" }, { name: "other" }])),
+          );
+        }
+        if (call.variables?.["id"] === "merge-group-commit") {
+          expect(call.variables?.["number"]).toBe(1);
+          const first = call.variables?.["after"] === null;
+          return Effect.succeed(
+            output(
+              encodeJson({
+                data: {
+                  node: {
+                    __typename: "Commit",
+                    statusCheckRollup: {
+                      contexts: {
+                        nodes: [
+                          {
+                            __typename: "StatusContext",
+                            context: first ? "build" : "lint",
+                            state: first ? "PENDING" : "SUCCESS",
+                            targetUrl: null,
+                            description: null,
+                            createdAt: "2026-11-27T12:00:00Z",
+                            isRequired: true,
+                          },
+                        ],
+                        pageInfo: { hasNextPage: first, endCursor: first ? "second" : null },
+                      },
+                    },
+                  },
+                },
+              }),
+            ),
+          );
+        }
+        const branch = call.variables?.["branch"];
+        const more = branch === "release" && call.variables?.["cursor"] === null;
+        const position = more ? 1 : 2;
+        const mergeQueue =
+          branch === "other"
+            ? null
+            : {
+                entries: {
+                  nodes:
+                    branch === "main"
+                      ? []
+                      : [
+                          {
+                            position,
+                            headCommit: more ? { id: "merge-group-commit" } : null,
+                            enqueuedAt: "2026-11-27T12:00:00Z",
+                            estimatedTimeToMerge: more ? 60 : null,
+                            state: "AWAITING_CHECKS",
+                            pullRequest: { number: position, title: "Fix" },
+                          },
+                        ],
+                  pageInfo: { hasNextPage: more, endCursor: more ? "next" : null },
+                },
+              };
+        return Effect.succeed(output(encodeJson({ data: { repository: { mergeQueue } } })));
+      });
+      const cli = yield* GitHubPullRequestApi.GitHubPullRequestApi;
+      expect(
+        yield* cli.listMergeQueues({ cwd: "/w", host: "github.com", repository: "acme/web" }),
+      ).toEqual([
+        { branch: "main", entries: [] },
+        {
+          branch: "release",
+          entries: [1, 2].map((position) => ({
+            position,
+            ...(position === 1
+              ? {
+                  estimatedMergeAt: expect.any(String),
+                  checks: expect.arrayContaining([
+                    expect.objectContaining({ name: "build", status: "pending", required: true }),
+                    expect.objectContaining({ name: "lint", status: "success", required: true }),
+                  ]),
+                }
+              : {}),
+            enqueuedAt: "2026-11-27T12:00:00Z",
+            state: "awaiting-checks",
+            number: position,
+            title: "Fix",
+          })),
+        },
+      ]);
+    }),
+  );
+
   it.effect("keeps recent references when the typed number does not exist", () =>
     Effect.gen(function* () {
       const search = {
@@ -2749,6 +2844,23 @@ layer("GitHubPullRequestApi.layer", (it) => {
       expect(detail.headRepositoryNameWithOwner).toBe("contributor/web-fork");
       expect(detail.viewerPermissions.actions).toContain("delete-branch");
       expect(queryAt(0)).toContain("headRepository{nameWithOwner viewerPermission}");
+    }),
+  );
+
+  it.effect("reports a queue-enabled base before a ready pull request enters the queue", () =>
+    Effect.gen(function* () {
+      const answer = coreResponse({ mergeStateStatus: "CLEAN", isMergeQueueEnabled: true });
+      mockedExecute.mockReturnValue(Effect.succeed(output(encodeJson(answer))));
+      const provider = yield* GitHubPullRequestProvider.make;
+      const detail = yield* provider.getChangeRequest({
+        cwd: "/w",
+        repository: "acme/web",
+        host: "github.com",
+        number: 7,
+      });
+      expect(queryAt(0)).toContain("isMergeQueueEnabled");
+      expect(detail.mergeQueueEnabled).toBe(true);
+      expect(detail.mergeQueue).toBeUndefined();
     }),
   );
 
