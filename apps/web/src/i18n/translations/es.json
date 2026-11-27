@@ -13038,5 +13038,10 @@
   "95435f0b59cb2193": "Vista previa de audio",
   "4a12506938295127": "Introduce primero {field}.",
   "5807c08e225c6b3d": "Descargar",
-  "0d50b5bfe7151ece": "No se pudo descargar el archivo"
+  "0d50b5bfe7151ece": "No se pudo descargar el archivo",
+  "0d2c829517ac60df": "En cola (#{position}, {state})",
+  "959e69b4cda71fa0": "esperando comprobaciones",
+  "545f8cd4316c65bb": "listo para fusionar",
+  "c5b67b4b47487577": "no se puede fusionar",
+  "d48e227c8c27f170": "bloqueado"
 }

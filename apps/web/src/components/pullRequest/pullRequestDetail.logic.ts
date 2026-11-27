@@ -66,11 +66,11 @@ export const PULL_REQUEST_MERGE_METHOD_LABELS: Record<PullRequestMergeMethod, st
 };
 
 export const MERGE_QUEUE_STATE_LABELS: Record<PullRequestMergeQueueEntry["state"], string> = {
-  queued: "waiting",
-  "awaiting-checks": "awaiting checks",
-  mergeable: "ready to merge",
-  unmergeable: "cannot merge",
-  locked: "locked",
+  queued: msg("waiting"),
+  "awaiting-checks": msg("awaiting checks"),
+  mergeable: msg("ready to merge"),
+  unmergeable: msg("cannot merge"),
+  locked: msg("locked"),
 };
 
 export function allowsSinglePullRequestMerge(input: {

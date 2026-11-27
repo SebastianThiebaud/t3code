@@ -5722,5 +5722,8 @@
   "99451a5d2d40440f": "Återkallad av {by}.",
   "3ee30a50b70fffab": "Återkallad av {by}: {reason}",
   "201490988858b511": "återkallad av {by}",
-  "46d614fa7b4bf1e5": "Arbetsflödeskörningar"
+  "46d614fa7b4bf1e5": "Arbetsflödeskörningar",
+  "6228200defe4c0cb": "I kö (#{position})",
+  "1851554e663cc8fd": "Ta bort från kön?",
+  "320981f4e72cb92f": "Ta bort från kön"
 }

@@ -13050,5 +13050,10 @@
   "95435f0b59cb2193": "Ljudförhandsvisning",
   "4a12506938295127": "Ange {field} först.",
   "5807c08e225c6b3d": "Ladda ned",
-  "0d50b5bfe7151ece": "Det gick inte att ladda ned filen"
+  "0d50b5bfe7151ece": "Det gick inte att ladda ned filen",
+  "0d2c829517ac60df": "I kö (#{position}, {state})",
+  "959e69b4cda71fa0": "väntar på kontroller",
+  "545f8cd4316c65bb": "redo att slås samman",
+  "c5b67b4b47487577": "kan inte slås samman",
+  "d48e227c8c27f170": "låst"
 }

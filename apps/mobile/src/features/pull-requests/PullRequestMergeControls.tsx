@@ -140,14 +140,14 @@ export function PullRequestMergeControls(props: {
                     label: pr.mergeQueue
                       ? gt("Queued (#{position})", { position: pr.mergeQueue.position })
                       : pr.autoMergeMethod
-                      ? gt(
-                          "Auto-merge pending ({kind, select, squash {squash} merge {merge} rebase {rebase} fastForward {fast-forward} other {{method}}})",
-                          {
-                            kind: mergeMethodKind(pr.autoMergeMethod),
-                            method: pr.autoMergeMethod,
-                          },
-                        )
-                      : gt("Auto-merge pending"),
+                        ? gt(
+                            "Auto-merge pending ({kind, select, squash {squash} merge {merge} rebase {rebase} fastForward {fast-forward} other {{method}}})",
+                            {
+                              kind: mergeMethodKind(pr.autoMergeMethod),
+                              method: pr.autoMergeMethod,
+                            },
+                          )
+                        : gt("Auto-merge pending"),
                     icon: "clock",
                   }
                 : checkingStack && !busy
@@ -259,7 +259,9 @@ export function PullRequestMergeControls(props: {
             )
         : action === "enable-auto-merge"
           ? gt("Enable auto-merge?")
-          : pr.mergeQueue ? gt("Remove from queue?") : gt("Disable auto-merge?");
+          : pr.mergeQueue
+            ? gt("Remove from queue?")
+            : gt("Disable auto-merge?");
     const message =
       action === "merge" && scope
         ? gt(
@@ -311,7 +313,9 @@ export function PullRequestMergeControls(props: {
             ? label
             : action === "enable-auto-merge"
               ? gt("Enable auto-merge")
-              : gt("Disable auto-merge"),
+              : pr.mergeQueue
+                ? gt("Remove from queue")
+                : gt("Disable auto-merge"),
         onPress: () => void perform(action, shownHeadSha),
       },
     ]);
@@ -351,7 +355,7 @@ export function PullRequestMergeControls(props: {
           status?.final
             ? []
             : [
-                ...methods.map((id) => ({
+                ...(pr.mergeQueue ? [] : methods).map((id) => ({
                   id,
                   title: m(MERGE_METHODS[id].title),
                   state: id === method ? ("on" as const) : ("off" as const),
@@ -364,8 +368,8 @@ export function PullRequestMergeControls(props: {
                         title: pr.mergeQueue
                           ? gt("Remove from queue")
                           : pr.autoMergeEnabled
-                          ? gt("Disable auto-merge")
-                          : gt("Enable auto-merge"),
+                            ? gt("Disable auto-merge")
+                            : gt("Enable auto-merge"),
                         image: "clock",
                       },
                     ]

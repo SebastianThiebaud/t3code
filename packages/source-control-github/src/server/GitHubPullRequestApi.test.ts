@@ -2591,6 +2591,7 @@ layer("GitHubPullRequestApi.layer", (it) => {
                       headRefOid: "response-head",
                       author: { __typename: "User", login: "alice", avatarUrl: "", name: null },
                       autoMergeRequest: null,
+                      isInMergeQueue: true,
                     },
                   },
                 },
@@ -2618,7 +2619,7 @@ layer("GitHubPullRequestApi.layer", (it) => {
           closedAt: null,
           author: { login: "alice", name: null, avatarUrl: null },
           headSha: "response-head",
-          autoMergeEnabled: false,
+          autoMergeEnabled: true,
         });
         expect(variablesOf("enqueuePullRequest(")).toEqual([
           { input: { pullRequestId: "PR_7", expectedHeadOid: "abc123" } },

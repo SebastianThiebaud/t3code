@@ -1415,10 +1415,13 @@ export function PullRequestDetailPanel({
   const armedMergeMethod = detail?.autoMergeMethod;
   const mergeQueue = autoMergeArmed ? detail.mergeQueue : undefined;
   const armedAutoMergeLabel = mergeQueue
-    ? `Queued (#${mergeQueue.position}, ${MERGE_QUEUE_STATE_LABELS[mergeQueue.state]})`
+    ? gt("Queued (#{position}, {state})", {
+        position: mergeQueue.position,
+        state: resolve(MERGE_QUEUE_STATE_LABELS[mergeQueue.state]),
+      })
     : armedMergeMethod
-    ? resolve(AUTO_MERGE_LABELS[armedMergeMethod])
-    : gt("Auto-merge");
+      ? resolve(AUTO_MERGE_LABELS[armedMergeMethod])
+      : gt("Auto-merge");
   const workflowApprovalsRequired =
     detail?.state === "open" ? (detail.workflowApprovalsRequired ?? 0) : 0;
   const freshness = detail === null ? null : resolveBaseFreshness(detail);
@@ -1467,6 +1470,7 @@ export function PullRequestDetailPanel({
         can("enable-auto-merge") &&
         allowedMergeMethods.length > 0));
   const showsMergeNow =
+    !mergeQueue &&
     canMergeSinglePullRequest &&
     detail?.state === "open" &&
     (primaryAction === "enable-auto-merge" || primaryAction === "auto-merge-armed") &&
@@ -1475,6 +1479,7 @@ export function PullRequestDetailPanel({
     !conflicting &&
     allowedMergeMethods.length > 0;
   const showsMergeMethods =
+    !mergeQueue &&
     detail?.state === "open" &&
     can("merge") &&
     !detail.isDraft &&

@@ -13043,5 +13043,10 @@
   "95435f0b59cb2193": "Prévia de áudio",
   "4a12506938295127": "Informe primeiro {field}.",
   "5807c08e225c6b3d": "Baixar",
-  "0d50b5bfe7151ece": "Não foi possível baixar o arquivo"
+  "0d50b5bfe7151ece": "Não foi possível baixar o arquivo",
+  "0d2c829517ac60df": "Na fila (#{position}, {state})",
+  "959e69b4cda71fa0": "aguardando verificações",
+  "545f8cd4316c65bb": "pronto para mesclar",
+  "c5b67b4b47487577": "não é possível mesclar",
+  "d48e227c8c27f170": "bloqueado"
 }
